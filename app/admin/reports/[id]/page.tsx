@@ -105,7 +105,10 @@ export default async function AdminReportDetail({
     .from("report_audit_logs")
     .select("*, actor:user_profiles!report_audit_logs_actor_id_fkey(full_name,email)")
     .eq("report_id", report.id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .returns<AuditWithActor[]>();
+
+  const safeLogs = logs ?? [];
 
   return (
     <div className="space-y-6">
@@ -218,7 +221,7 @@ export default async function AdminReportDetail({
           <CardDescription>Actions performed by admins.</CardDescription>
         </CardHeader>
         <CardContent>
-          {logs.length === 0 ? (
+          {safeLogs.length === 0 ? (
             <p className="text-sm text-muted-foreground">No actions recorded yet.</p>
           ) : (
             <Table>
@@ -231,7 +234,7 @@ export default async function AdminReportDetail({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {logs.map((log: AuditWithActor) => (
+                {safeLogs.map((log: AuditWithActor) => (
                   <TableRow key={log.id}>
                     <TableCell className="capitalize">{log.action}</TableCell>
                     <TableCell>
