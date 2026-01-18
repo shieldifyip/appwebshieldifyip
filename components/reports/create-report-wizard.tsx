@@ -59,27 +59,27 @@ export function CreateReportWizard({ customerId }: Props) {
   const typeFirstRef = useRef<HTMLButtonElement | null>(null);
   const accountRef = useRef<HTMLInputElement | null>(null);
 
-  const form = useForm<ReportFormValues>({
-    resolver: zodResolver(reportFormSchema),
+  const form = useForm<any>({
+    resolver: zodResolver(reportFormSchema) as any,
     defaultValues,
     mode: "onBlur",
   });
 
   const reportType = form.watch("report_type");
 
-  const urlsArray = useFieldArray<ReportFormValues>({
+  const urlsArray = useFieldArray<any>({
     control: form.control,
-    name: "infringing_urls",
+    name: "infringing_urls" as any,
   });
 
-  const proofLinksArray = useFieldArray<ReportFormValues>({
+  const proofLinksArray = useFieldArray<any>({
     control: form.control,
-    name: "proof_links",
+    name: "proof_links" as any,
   });
 
-  const evidenceLinksArray = useFieldArray<ReportFormValues>({
+  const evidenceLinksArray = useFieldArray<any>({
     control: form.control,
-    name: "evidence_links",
+    name: "evidence_links" as any,
   });
 
   const nextStep = async () => {
@@ -101,8 +101,7 @@ export function CreateReportWizard({ customerId }: Props) {
 
     const payload = buildPayload(values);
 
-    const { data, error } = await supabase
-      .from("reports")
+    const { data, error } = await (supabase.from("reports") as any)
       .insert({
         customer_id: customerId,
         platform: values.platform,
@@ -258,7 +257,7 @@ export function CreateReportWizard({ customerId }: Props) {
                   Add every link that contains infringing content. Minimum one URL, maximum {MAX_URLS}.
                 </p>
                 {urlsArray.fields.map((field, index) => {
-                  const urlError = form.formState.errors.infringing_urls?.[index];
+                  const urlError = (form.formState.errors as any)?.infringing_urls?.[index];
                   const message =
                     typeof urlError === "object" && urlError && "message" in urlError
                       ? (urlError as { message?: string }).message
@@ -391,9 +390,9 @@ function TypeSpecificFields({
   evidenceLinksArray,
 }: {
   reportType: ReportFormValues["report_type"];
-  form: ReturnType<typeof useForm<ReportFormValues>>;
-  proofLinksArray: UseFieldArrayReturn<ReportFormValues, "proof_links">;
-  evidenceLinksArray: UseFieldArrayReturn<ReportFormValues, "evidence_links">;
+  form: ReturnType<typeof useForm<any>>;
+  proofLinksArray: UseFieldArrayReturn<any, any>;
+  evidenceLinksArray: UseFieldArrayReturn<any, any>;
 }) {
   if (reportType === "copyright") {
     return (

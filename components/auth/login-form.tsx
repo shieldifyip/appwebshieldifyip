@@ -65,7 +65,7 @@ export function LoginForm() {
         .from("user_profiles")
         .select("role")
         .eq("id", user.id)
-        .maybeSingle();
+        .maybeSingle<{ role: "admin" | "customer" }>();
       role = profile?.role ?? "customer";
     }
 

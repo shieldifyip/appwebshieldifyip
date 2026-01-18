@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { approveSchema, rejectSchema } from "@/lib/validation/report";
-import { Report } from "@/types/db";
+import { Database, Report } from "@/types/db";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -37,7 +37,8 @@ interface Props {
 }
 
 type ApproveValues = { report_number: string };
-type RejectValues = { note?: string | null };
+type RejectValues = { note?: string };
+type ReportUpdate = Database["public"]["Tables"]["reports"]["Update"];
 
 export function AdminReportActions({
   reportId,
@@ -78,15 +79,14 @@ export function AdminReportActions({
       data: { user },
     } = await supabase.auth.getUser();
 
-    const { error } = await supabase
-      .from("reports")
+    const { error } = await (supabase.from("reports") as any)
       .update({
         report_number: values.report_number,
-      })
+      } as ReportUpdate)
       .eq("id", reportId);
 
     if (!error && user?.id) {
-      await supabase.from("report_audit_logs").insert({
+      await (supabase.from("report_audit_logs") as any).insert({
         report_id: reportId,
         actor_id: user.id,
         action: "updated",
@@ -110,16 +110,15 @@ export function AdminReportActions({
       data: { user },
     } = await supabase.auth.getUser();
 
-    const { error } = await supabase
-      .from("reports")
+    const { error } = await (supabase.from("reports") as any)
       .update({
         status: "approved",
         report_number: values.report_number,
-      })
+      } as ReportUpdate)
       .eq("id", reportId);
 
     if (!error && user?.id) {
-      await supabase.from("report_audit_logs").insert({
+      await (supabase.from("report_audit_logs") as any).insert({
         report_id: reportId,
         actor_id: user.id,
         action: "approved",
@@ -146,15 +145,14 @@ export function AdminReportActions({
       data: { user },
     } = await supabase.auth.getUser();
 
-    const { error } = await supabase
-      .from("reports")
+    const { error } = await (supabase.from("reports") as any)
       .update({
         status: "rejected",
-      })
+      } as ReportUpdate)
       .eq("id", reportId);
 
     if (!error && user?.id) {
-      await supabase.from("report_audit_logs").insert({
+      await (supabase.from("report_audit_logs") as any).insert({
         report_id: reportId,
         actor_id: user.id,
         action: "rejected",
@@ -178,13 +176,12 @@ export function AdminReportActions({
       data: { user },
     } = await supabase.auth.getUser();
 
-    const { error } = await supabase
-      .from("reports")
-      .update({ status: "pending" })
+    const { error } = await (supabase.from("reports") as any)
+      .update({ status: "pending" } as ReportUpdate)
       .eq("id", reportId);
 
     if (!error && user?.id) {
-      await supabase.from("report_audit_logs").insert({
+      await (supabase.from("report_audit_logs") as any).insert({
         report_id: reportId,
         actor_id: user.id,
         action: "updated",

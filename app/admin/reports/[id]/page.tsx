@@ -15,6 +15,9 @@ import { PLATFORM_OPTIONS, REPORT_TYPE_OPTIONS } from "@/lib/utils";
 import { Report, ReportAuditLog, UserProfile } from "@/types/db";
 
 type AuditWithActor = ReportAuditLog & { actor?: Pick<UserProfile, "email" | "full_name"> };
+type ReportWithCustomer = Report & {
+  user_profiles?: Pick<UserProfile, "email" | "full_name" | "id">;
+};
 
 export const dynamic = "force-dynamic";
 const MAX_URLS = 50;
@@ -63,7 +66,7 @@ export default async function AdminReportDetail({
     .from("reports")
     .select("*, user_profiles:customer_id(email,full_name,id)")
     .eq("id", reportId)
-    .maybeSingle();
+    .maybeSingle<ReportWithCustomer>();
 
   if (error) {
     return (

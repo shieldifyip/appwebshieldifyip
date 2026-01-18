@@ -42,8 +42,10 @@ export default async function CustomerDashboard({
     .select("*", { count: "exact" })
     .eq("customer_id", user.id)
     .order("created_at", { ascending: false })
-    .range(from, to);
+    .range(from, to)
+    .returns<Report[]>();
 
+  const reportsList = reports ?? [];
   const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
   const canPrev = page > 1;
   const canNext = page < totalPages;
@@ -76,7 +78,7 @@ export default async function CustomerDashboard({
             <CardDescription className="text-xs uppercase text-primary">
               Total reports
             </CardDescription>
-            <CardTitle className="text-3xl">{reports.length}</CardTitle>
+            <CardTitle className="text-3xl">{reportsList.length}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -84,7 +86,7 @@ export default async function CustomerDashboard({
             <div>
               <CardDescription className="text-xs uppercase">Approved</CardDescription>
               <CardTitle className="text-2xl">
-                {reports.filter((r) => r.status === "approved").length}
+                {reportsList.filter((r) => r.status === "approved").length}
               </CardTitle>
             </div>
             <ShieldCheck className="h-5 w-5 text-emerald-600" />
@@ -94,7 +96,7 @@ export default async function CustomerDashboard({
           <CardHeader>
             <CardDescription className="text-xs uppercase">Pending</CardDescription>
             <CardTitle className="text-2xl">
-              {reports.filter((r) => r.status === "pending").length}
+              {reportsList.filter((r) => r.status === "pending").length}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -111,7 +113,7 @@ export default async function CustomerDashboard({
           </Button>
         </CardHeader>
         <CardContent>
-          {reports.length === 0 ? (
+          {reportsList.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed bg-muted/40 p-8 text-center text-sm text-muted-foreground">
               <p>No reports yet.</p>
               <Button asChild>
@@ -131,7 +133,7 @@ export default async function CustomerDashboard({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {reports.map((report: Report) => (
+                  {reportsList.map((report: Report) => (
                     <TableRow key={report.id} className="hover:bg-muted/60">
                       <TableCell>
                         <Link

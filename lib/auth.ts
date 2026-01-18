@@ -3,7 +3,16 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { UserProfile } from "@/types/db";
 
-export async function getUserWithProfile() {
+type AuthUser = {
+  id: string;
+  email?: string | null;
+  user_metadata?: Record<string, unknown> | null;
+} | null;
+
+export async function getUserWithProfile(): Promise<{
+  user: AuthUser;
+  profile: UserProfile | null;
+}> {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -26,8 +35,7 @@ export async function getUserWithProfile() {
         ? (user.user_metadata as { full_name?: string }).full_name
         : user.email ?? null;
 
-    const { data: created } = await supabase
-      .from("user_profiles")
+    const { data: created } = await (supabase.from("user_profiles") as any)
       .upsert(
         {
           id: user.id,

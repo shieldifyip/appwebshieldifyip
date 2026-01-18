@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { Report, UserProfile } from "@/types/db";
 
 type SearchParams = {
   status?: string;
@@ -12,6 +13,10 @@ type SearchParams = {
   created_from?: string;
   created_to?: string;
   sort?: string;
+};
+
+type ReportWithProfile = Report & {
+  user_profiles?: Pick<UserProfile, "email" | "full_name">;
 };
 
 export async function GET(request: Request) {
@@ -59,7 +64,7 @@ export async function GET(request: Request) {
     query = query.order("created_at", { ascending: false });
   }
 
-  const { data, error } = await query;
+  const { data = [], error } = await query.returns<ReportWithProfile[]>();
 
   if (error || !data) {
     return NextResponse.json(

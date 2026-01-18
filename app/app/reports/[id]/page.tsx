@@ -56,7 +56,7 @@ export default async function ReportDetail({
     .from("reports")
     .select("*")
     .eq("id", reportId)
-    .maybeSingle();
+    .maybeSingle<Report>();
 
   if (error) {
     return (
@@ -98,7 +98,10 @@ export default async function ReportDetail({
     .from("report_audit_logs")
     .select("*")
     .eq("report_id", report.id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .returns<ReportAuditLog[]>();
+
+  const safeLogs = logs ?? [];
 
   return (
     <div className="space-y-6">
@@ -188,7 +191,7 @@ export default async function ReportDetail({
         </CardContent>
       </Card>
 
-      {logs.length > 0 && (
+      {safeLogs.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Audit log</CardTitle>
@@ -204,7 +207,7 @@ export default async function ReportDetail({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {logs.map((log: ReportAuditLog) => (
+                {safeLogs.map((log: ReportAuditLog) => (
                   <TableRow key={log.id}>
                     <TableCell className="capitalize">{log.action}</TableCell>
                     <TableCell className="text-muted-foreground">
