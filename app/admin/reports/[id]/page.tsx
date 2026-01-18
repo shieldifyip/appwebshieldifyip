@@ -62,11 +62,12 @@ export default async function AdminReportDetail({
     );
   }
 
-  const { data: report, error } = await supabase
+  const { data: reportData, error } = await supabase
     .from("reports")
     .select("*, user_profiles:customer_id(email,full_name,id)")
     .eq("id", reportId)
     .maybeSingle<ReportWithCustomer>();
+  const report = reportData as ReportWithCustomer | null;
 
   if (error) {
     return (
