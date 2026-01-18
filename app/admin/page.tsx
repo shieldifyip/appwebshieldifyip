@@ -83,9 +83,11 @@ export default async function AdminDashboard({
     }
   }
 
-  const { data: reports = [], error, count = 0 } = await query
+  const { data: reports, error, count = 0 } = await query
     .range(from, to)
     .returns<ReportWithProfile[]>();
+
+  const safeReports = reports ?? [];
 
   if (error) {
     console.error(error);
@@ -213,7 +215,7 @@ export default async function AdminDashboard({
           <CardDescription>Click a row to open the detail view.</CardDescription>
         </CardHeader>
         <CardContent>
-          {reports.length === 0 ? (
+          {safeReports.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed bg-muted/30 p-8 text-sm text-muted-foreground">
               No reports found with these filters.
             </div>
@@ -233,7 +235,7 @@ export default async function AdminDashboard({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {reports.map((report) => (
+                  {safeReports.map((report) => (
                   <TableRow key={report.id} className="hover:bg-muted/60">
                       <TableCell>
                         <Link
